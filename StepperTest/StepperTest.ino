@@ -7,7 +7,7 @@ int irPin2 = 3 ;
 volatile byte state = FORWARD ;
 volatile int stepMot = 0 ;
 volatile int motStop = 1 ;
-int dispCount = 0 ;
+unsigned int dispCount = 0 ;
 volatile byte limitsw1 = 1 ;
 volatile byte limitsw2 = 1 ;
 float sRPM = 1 ;
@@ -80,6 +80,10 @@ void check_serial() //check serial for input
   {
     if ( hitOnce ){
       Serial.println("Options: (h)ome, (d)irection, (s)tart, (p)reset");
+          if ( state == FORWARD )
+        Serial.println("Towards LS 2");
+    if (state == BACKWARD )
+        Serial.println("Towards LS 1");
       hitOnce = 0 ;
     }
     if (Serial.available() > 0) //if only serial input is available
