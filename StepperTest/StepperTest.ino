@@ -55,7 +55,7 @@ void check_irq1() //limitswitch 1
     myMotor->setSpeed(100); //reverse at 200 rpm
     myMotor->step(4000, FORWARD, DOUBLE); //step back 3000 steps
     if ( stepMot > 0 )
-     dispCount = dispCount - (999/stepMot) ; //displaced by one step backward the first time
+     dispCount = dispCount - (4000/stepMot) ; //displaced by one step backward the first time
     stepMot = 0 ; //stop motor
     motStop = 1 ; //indicate that motor has stopped
     myMotor->setSpeed(sRPM);
@@ -71,7 +71,7 @@ void check_irq2() //limitswitch 1
     myMotor->setSpeed(100);
     myMotor->step(4000, BACKWARD, DOUBLE); //step back a bit
     if ( stepMot > 0 )
-     dispCount = dispCount - (999/stepMot) ; //displaced by one step backward the first time
+     dispCount = dispCount - (4000/stepMot) ; //displaced by one step backward the first time
     stepMot = 0 ; //stop motor
     motStop = 1 ; //indicate that motor has stopped
     myMotor->setSpeed(sRPM);
