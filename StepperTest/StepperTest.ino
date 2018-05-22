@@ -52,11 +52,13 @@ void check_irq1() //limitswitch 1
     Serial.println("Hit limit switch 1 on irPin 1"); //let us know
     limitsw1 = 0 ; //so that doesn't enter the function even if the switch is high for quite a few loops
     chdir() ; //reverse, but in the real case should just change direction of motion
-    myMotor->step(stepMot, state, DOUBLE); //step back a bit
+    myMotor->setSpeed(100); //reverse at 200 rpm
+    myMotor->step(4000, FORWARD, DOUBLE); //step back 3000 steps
     if ( stepMot > 0 )
-     dispCount = dispCount - 1 ; //displaced by one step backward the first time
+     dispCount = dispCount - (999/stepMot) ; //displaced by one step backward the first time
     stepMot = 0 ; //stop motor
     motStop = 1 ; //indicate that motor has stopped
+    myMotor->setSpeed(sRPM);
   }
 }
 void check_irq2() //limitswitch 1
@@ -66,11 +68,13 @@ void check_irq2() //limitswitch 1
     Serial.println("Hit limit switch 2 on irPin 2"); //let us know
     limitsw2 = 0 ; //so that doesn't enter the function even if the switch is high for quite a few loops
     chdir() ; //reverse, but in the real case should just change direction of motion
-    myMotor->step(stepMot, state, DOUBLE); //step back a bit
+    myMotor->setSpeed(100);
+    myMotor->step(4000, BACKWARD, DOUBLE); //step back a bit
     if ( stepMot > 0 )
-     dispCount = dispCount - 1 ; //displaced by one step backward the first time
+     dispCount = dispCount - (999/stepMot) ; //displaced by one step backward the first time
     stepMot = 0 ; //stop motor
     motStop = 1 ; //indicate that motor has stopped
+    myMotor->setSpeed(sRPM);
   }
 }
 
@@ -133,6 +137,8 @@ void check_serial() //check serial for input
         Serial.println("Set RPM (3 digits): ");
         while (Serial.available() < 3 );
         sRPM = Serial.parseFloat() ;
+        if ( sRPM > 100 )
+          sRPM = 1 ;
         Serial.print("Step: ");
         Serial.println(STEPMOT);
          Serial.print("RPM: ");
