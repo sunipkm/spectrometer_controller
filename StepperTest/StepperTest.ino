@@ -1,15 +1,17 @@
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>
 
-#define STEPMOT 1
+int STEPMOT = 20 ;
 int irPin1 = 2 ;
 int irPin2 = 3 ;
 volatile byte state = FORWARD ;
-volatile int stepMot = STEPMOT ;
-volatile int motStop = 0 ;
+volatile int stepMot = 0 ;
+volatile int motStop = 1 ;
 int dispCount = 0 ;
 volatile byte limitsw1 = 1 ;
 volatile byte limitsw2 = 1 ;
+float sRPM = 1 ;
+int hitOnce = 1 ;
 // Create the motor shield object with the default I2C address
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
 // Or, create it with a different I2C address (say for stacking)
@@ -27,8 +29,9 @@ void setup() {
   AFMS.begin();  // create with the default frequency 1.6KHz
   //AFMS.begin(1000);  // OR with a different frequency, say 1KHz
   
-  myMotor->setSpeed(0.1);  // 10 rpm 
+  myMotor->setSpeed(sRPM);  // 10 rpm 
   pinMode(irPin1, INPUT) ; //setting pin irPin1 for limit switch 1
+  pinMode(irPin2, INPUT) ;
  
 }
 
@@ -46,7 +49,7 @@ void check_irq1() //limitswitch 1
 {
     if ( digitalRead(irPin1) == HIGH && limitsw1 ) //if the pin is set AND it has been hit the first time (to get rid of the multiple change direction problem)
   { 
-    Serial.println("Hit limit switch"); //let us know
+    Serial.println("Hit limit switch 1 on irPin 1"); //let us know
     limitsw1 = 0 ; //so that doesn't enter the function even if the switch is high for quite a few loops
     chdir() ; //reverse, but in the real case should just change direction of motion
     myMotor->step(stepMot, state, DOUBLE); //step back a bit
@@ -60,8 +63,8 @@ void check_irq2() //limitswitch 1
 {
     if ( digitalRead(irPin2) == HIGH && limitsw2 ) //if the pin is set AND it has been hit the first time (to get rid of the multiple change direction problem)
   { 
-    Serial.println("Hit limit switch"); //let us know
-    limitsw1 = 0 ; //so that doesn't enter the function even if the switch is high for quite a few loops
+    Serial.println("Hit limit switch 2 on irPin 2"); //let us know
+    limitsw2 = 0 ; //so that doesn't enter the function even if the switch is high for quite a few loops
     chdir() ; //reverse, but in the real case should just change direction of motion
     myMotor->step(stepMot, state, DOUBLE); //step back a bit
     if ( stepMot > 0 )
@@ -75,6 +78,10 @@ void check_serial() //check serial for input
 {
   if ( motStop ) //only when motor is stopped
   {
+    if ( hitOnce ){
+      Serial.println("Options: (h)ome, (d)irection, (s)tart, (p)reset");
+      hitOnce = 0 ;
+    }
     if (Serial.available() > 0) //if only serial input is available
     {
       char inCh = Serial.read() ; //read char from serial
@@ -88,6 +95,8 @@ void check_serial() //check serial for input
         dispCount = 0 ;
         stepMot = 0 ;
         motStop = 1 ;
+        Serial.flush();
+        hitOnce = 1 ;
       }
       if ( inCh == 'd' ) //change direction 
       {
@@ -97,6 +106,8 @@ void check_serial() //check serial for input
         chdir() ;
         Serial.print("Final state: ") ;
         Serial.println(state);
+        Serial.flush();
+         hitOnce = 1 ;
       }
       if ( inCh == 's' ) //restart motor
       {
@@ -104,6 +115,31 @@ void check_serial() //check serial for input
         stepMot = STEPMOT ;
         motStop = 0 ;
         limitsw1 = 1 ;
+        limitsw2 = 1 ;
+        Serial.flush();
+         hitOnce = 1 ;
+      }
+      if ( inCh == 'p' ) //restart motor
+      {
+        Serial.println("Set step (2 digits): ");
+        Serial.flush();
+        while (Serial.available() < 2 );
+        STEPMOT = Serial.parseInt() ;
+        Serial.flush();
+        Serial.println("Set RPM (3 digits): ");
+        while (Serial.available() < 3 );
+        sRPM = Serial.parseFloat() ;
+        Serial.print("Step: ");
+        Serial.println(STEPMOT);
+         Serial.print("RPM: ");
+        Serial.println(sRPM);
+        myMotor->setSpeed(sRPM);
+        stepMot = STEPMOT ;
+        motStop = 0 ;
+        limitsw1 = 1 ;
+        limitsw2 = 1 ;
+        Serial.flush();
+         hitOnce = 1 ;
       }
     }
   }
