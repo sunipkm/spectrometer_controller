@@ -1,16 +1,86 @@
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>
 
+class skuint64 {
+  public:
+  byte hi ;
+  unsigned long lo ;
+  
+  skuint64(){
+    hi = 0 ;
+    lo = 0L ;
+  }
+  skuint64(unsigned long n){
+    hi = 0 ;
+    lo = n*1L ;
+  }
+  skuint64(byte x, unsigned long y)
+  {
+    hi = x ;
+    lo = y*1L ;
+  }
+  skuint64 operator+(const unsigned long n);
+  skuint64 operator-(const unsigned long n);
+  skuint64 operator--();
+  bool operator==(const skuint64 n );
+  bool operator==(const unsigned long n );
+  void print();
+};
+
+bool skuint64::operator==(const unsigned long n )
+{
+  if (this -> hi != 0)
+    return false ;
+  if ( this->lo == n)
+    return true ;
+  return false ;
+}
+skuint64 skuint64::operator--()
+{
+     unsigned int temp = this->lo - 1 ;
+    if ( temp >= this->lo || temp >= 1 )
+      this->hi-- ;
+    return skuint64(this->hi,temp);
+}
+skuint64 skuint64::operator+(const unsigned long n)
+{
+    unsigned int temp = this->lo + n ;
+    if ( temp < this->lo || temp < n )
+      this->hi++ ;
+    return skuint64(this->hi,temp);
+}
+skuint64 skuint64::operator-(const unsigned long n)
+{
+    unsigned int temp = this->lo - n ;
+    if ( temp >= this->lo || temp >= n )
+      this->hi-- ;
+    return skuint64(this->hi,temp);
+}
+bool skuint64::operator==(const skuint64 n )
+{
+  if ( this -> hi == n . hi && this -> lo == n . lo )
+    return true ;
+  else
+    return false ;
+}
+void skuint64::print()
+{
+  Serial.print(hi) ;
+  Serial.print(" * 4294967296 + ");
+  Serial.println(lo);
+  return ;
+}
+
 int STEPMOT = 20 ;
 int irPin1 = 2 ;
 int irPin2 = 3 ;
 volatile byte state = FORWARD ;
-volatile int stepMot = 0 ;
+volatile unsigned int stepMot = 0 ;
 volatile int motStop = 1 ;
-unsigned long dispCount = 0 ;
+skuint64 dispCount ; //init to 0
 volatile byte limitsw1 = 1 ;
 volatile byte limitsw2 = 1 ;
-float sRPM = 1 ;
+byte sRPM = 1 ;
 int hitOnce = 1 ;
 // Create the motor shield object with the default I2C address
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
@@ -37,11 +107,12 @@ void setup() {
 
 void loop() 
 {
-  check_irq1();
-  check_irq2();
+  //check_irq1();
+  //check_irq2();
   myMotor->step(stepMot, state, DOUBLE);
-  dispCount = dispCount + ( ( state == FORWARD ) ? - stepMot : stepMot ) ; 
-  Serial.println(dispCount);
+  dispCount = dispCount + ( ( state == BACKWARD ) ? -stepMot : stepMot ) ; 
+  if ( stepMot > 0 )
+  dispCount.print();
   check_serial();
 }
 
@@ -52,13 +123,13 @@ void check_irq1() //limitswitch 1
     Serial.println("Hit limit switch 1 on irPin 1"); //let us know
     limitsw1 = 0 ; //so that doesn't enter the function even if the switch is high for quite a few loops
     chdir() ; //reverse, but in the real case should just change direction of motion
-    myMotor->setSpeed(100); //reverse at 200 rpm
-    myMotor->step(4000, FORWARD, DOUBLE); //step back 3000 steps
-    if ( stepMot > 0 )
-     dispCount = dispCount - 4000 ; //displaced by one step backward the first time
+//    myMotor->setSpeed(100); //reverse at 200 rpm
+//    myMotor->step(4000, FORWARD, DOUBLE); //step back 3000 steps
+//    if ( stepMot > 0 )
+//     dispCount = dispCount - 4000 ; //displaced by one step backward the first time
     stepMot = 0 ; //stop motor
     motStop = 1 ; //indicate that motor has stopped
-    myMotor->setSpeed(sRPM);
+//    myMotor->setSpeed(sRPM);
   }
 }
 void check_irq2() //limitswitch 1
@@ -68,13 +139,13 @@ void check_irq2() //limitswitch 1
     Serial.println("Hit limit switch 2 on irPin 2"); //let us know
     limitsw2 = 0 ; //so that doesn't enter the function even if the switch is high for quite a few loops
     chdir() ; //reverse, but in the real case should just change direction of motion
-    myMotor->setSpeed(100);
-    myMotor->step(4000, BACKWARD, DOUBLE); //step back a bit
-    if ( stepMot > 0 )
-     dispCount = dispCount + 4000 ; //displaced by one step backward the first time
+//    myMotor->setSpeed(100);
+//    myMotor->step(4000, BACKWARD, DOUBLE); //step back a bit
+//    if ( stepMot > 0 )
+//     dispCount = dispCount + 4000 ; //displaced by one step backward the first time
     stepMot = 0 ; //stop motor
     motStop = 1 ; //indicate that motor has stopped
-    myMotor->setSpeed(sRPM);
+//    myMotor->setSpeed(sRPM);
   }
 }
 
@@ -90,36 +161,45 @@ void check_serial() //check serial for input
         Serial.println("Towards LS 1");
       hitOnce = 0 ;
     }
-    if (Serial.available() > 0) //if only serial input is available
+      Serial.flush();
+    if (Serial.available() > 0 ) //if only serial input is available
     {
       char inCh = Serial.read() ; //read char from serial
-      if ( inCh == 'h' ) //go home //needs to be modified severely
+      SWITCH_HEAD: Serial.flush() ;
+      switch ( inCh ) {
+      default: goto SWITCH_HEAD ;
+      break ;
+      case 'h' : //go home //needs to be modified severely
       {
         stepMot = STEPMOT ;
-        Serial.println("Going home...") ;
-        Serial.println(dispCount);
-        while (dispCount--)
+        Serial.println(F("Going home...")) ;
+        dispCount.print();
+        while (!(dispCount==0)){
           myMotor -> step(stepMot, state, DOUBLE) ;
+          --dispCount ;
+        }
         dispCount = 0 ;
         stepMot = 0 ;
         motStop = 1 ;
         Serial.flush();
         hitOnce = 1 ;
       }
-      if ( inCh == 'd' ) //change direction 
+      break ;
+      case 'd': //change direction 
       {
         //Serial.println("Changing state...");
-        Serial.print("Initial state: ") ;
+        Serial.print(F("Initial state: ")) ;
         Serial.println(state);
         chdir() ;
-        Serial.print("Final state: ") ;
+        Serial.print(F("Final state: ")) ;
         Serial.println(state);
         Serial.flush();
          hitOnce = 1 ;
       }
-      if ( inCh == 's' ) //restart motor
+      break ;
+      case 's': //restart motor
       {
-        Serial.println("Restarting motor.");
+        Serial.println(F("Restarting motor."));
         stepMot = STEPMOT ;
         motStop = 0 ;
         limitsw1 = 1 ;
@@ -127,21 +207,22 @@ void check_serial() //check serial for input
         Serial.flush();
          hitOnce = 1 ;
       }
-      if ( inCh == 'p' ) //restart motor
+      break ;
+      case 'p': //restart motor
       {
-        Serial.println("Set step (2 digits): ");
+        Serial.println(F("Set step (2 digits): "));
         Serial.flush();
         while (Serial.available() < 2 );
         STEPMOT = Serial.parseInt() ;
         Serial.flush();
-        Serial.println("Set RPM (3 digits): ");
+        Serial.println(F("Set RPM (3 digits): "));
         while (Serial.available() < 3 );
         sRPM = Serial.parseFloat() ;
-        if ( sRPM > 100 )
+        if ( sRPM > 200 )
           sRPM = 1 ;
-        Serial.print("Step: ");
+        Serial.print(F("Step: "));
         Serial.println(STEPMOT);
-         Serial.print("RPM: ");
+         Serial.print(F("RPM: "));
         Serial.println(sRPM);
         myMotor->setSpeed(sRPM);
         stepMot = STEPMOT ;
@@ -150,6 +231,8 @@ void check_serial() //check serial for input
         limitsw2 = 1 ;
         Serial.flush();
          hitOnce = 1 ;
+      }
+      break ;
       }
     }
   }
