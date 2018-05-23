@@ -7,7 +7,7 @@ int irPin2 = 3 ;
 volatile byte state = FORWARD ;
 volatile int stepMot = 0 ;
 volatile int motStop = 1 ;
-unsigned int dispCount = 0 ;
+unsigned long dispCount = 0 ;
 volatile byte limitsw1 = 1 ;
 volatile byte limitsw2 = 1 ;
 float sRPM = 1 ;
@@ -35,13 +35,13 @@ void setup() {
  
 }
 
-void loop() {
+void loop() 
+{
   check_irq1();
   check_irq2();
   myMotor->step(stepMot, state, DOUBLE);
-  if ( stepMot > 0 ) {
-    dispCount = dispCount + 1 ;
-  Serial.println(dispCount); }
+  dispCount = dispCount + ( ( state == FORWARD ) ? - stepMot : stepMot ) ; 
+  Serial.println(dispCount);
   check_serial();
 }
 
@@ -55,7 +55,7 @@ void check_irq1() //limitswitch 1
     myMotor->setSpeed(100); //reverse at 200 rpm
     myMotor->step(4000, FORWARD, DOUBLE); //step back 3000 steps
     if ( stepMot > 0 )
-     dispCount = dispCount - (4000/stepMot) ; //displaced by one step backward the first time
+     dispCount = dispCount - 4000 ; //displaced by one step backward the first time
     stepMot = 0 ; //stop motor
     motStop = 1 ; //indicate that motor has stopped
     myMotor->setSpeed(sRPM);
@@ -71,7 +71,7 @@ void check_irq2() //limitswitch 1
     myMotor->setSpeed(100);
     myMotor->step(4000, BACKWARD, DOUBLE); //step back a bit
     if ( stepMot > 0 )
-     dispCount = dispCount - (4000/stepMot) ; //displaced by one step backward the first time
+     dispCount = dispCount + 4000 ; //displaced by one step backward the first time
     stepMot = 0 ; //stop motor
     motStop = 1 ; //indicate that motor has stopped
     myMotor->setSpeed(sRPM);
@@ -93,7 +93,7 @@ void check_serial() //check serial for input
     if (Serial.available() > 0) //if only serial input is available
     {
       char inCh = Serial.read() ; //read char from serial
-      if ( inCh == 'h' ) //go home
+      if ( inCh == 'h' ) //go home //needs to be modified severely
       {
         stepMot = STEPMOT ;
         Serial.println("Going home...") ;
