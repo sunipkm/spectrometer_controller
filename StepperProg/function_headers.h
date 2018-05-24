@@ -1,0 +1,62 @@
+#include <Wire.h>
+#include <Adafruit_MotorShield.h>
+
+// Create the motor shield object with the default I2C address
+Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
+
+
+// Connect a stepper motor with 200 steps per revolution (1.8 degree)
+// to motor port #2 (M3 and M4)
+Adafruit_StepperMotor *myMotor = AFMS.getStepper(200, 2);
+
+
+
+/* System Globals */
+
+//from eeprom
+unsigned int __mem_m1 = 100 ; //default start address, you can think of rotating this periodically
+
+unsigned long saved_loc = 0 ; //retrieved location
+
+#define POWEROFF_SUCCESS 23
+
+#define MAX_DISP_BOUND 403840
+
+byte bootstat = 0 ;
+
+//from main system
+int STEPMOT = 1 ;
+int irPin1 = 2 ;
+int irPin2 = 3 ;
+int irPin3 = 4 ;
+
+volatile byte state = FORWARD ;
+volatile unsigned int stepMot = 0 ;
+volatile int motStop = 1 ;
+volatile unsigned long dispCount = 0L ; //init to 0
+volatile byte limitsw1 = 1 ;
+volatile byte limitsw2 = 1 ;
+volatile byte limitsw3 = 1 ;
+volatile byte sRPM = 1 ;
+volatile int hitOnce = 1 ;
+volatile unsigned long dest = 0L ; //destionation
+
+/***************************************/
+
+/* Function Headers */
+void ask_calibration() ;
+unsigned long eeprom_readlong(unsigned int addr ) ;
+void eeprom_writelong(unsigned int addr , unsigned long n ) ;
+void eepmem_clear() ;
+bool eepmem_begin() ;
+void eepmem_setup() ;
+void eepmem_store() ;
+
+/***************************************/
+
+
+/* Function Declarations */
+#include <sk_eeprom.h>
+#include <calibration.h>
+
+/***************************************/
