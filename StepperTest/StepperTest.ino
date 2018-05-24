@@ -1,83 +1,14 @@
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>
 
-class skuint64 {
-  public:
-  byte hi ;
-  unsigned long lo ;
-  
-  skuint64(){
-    hi = 0 ;
-    lo = 0L ;
-  }
-  skuint64(unsigned long n){
-    hi = 0 ;
-    lo = n*1L ;
-  }
-  skuint64(byte x, unsigned long y)
-  {
-    hi = x ;
-    lo = y*1L ;
-  }
-  skuint64 operator+(const unsigned long n);
-  skuint64 operator-(const unsigned long n);
-  skuint64 operator--();
-  bool operator==(const skuint64 n );
-  bool operator==(const unsigned long n );
-  void print();
-};
-
-bool skuint64::operator==(const unsigned long n )
-{
-  if (this -> hi != 0)
-    return false ;
-  if ( this->lo == n)
-    return true ;
-  return false ;
-}
-skuint64 skuint64::operator--()
-{
-     unsigned int temp = this->lo - 1 ;
-    if ( temp >= this->lo || temp >= 1 )
-      this->hi-- ;
-    return skuint64(this->hi,temp);
-}
-skuint64 skuint64::operator+(const unsigned long n)
-{
-    unsigned int temp = this->lo + n ;
-    if ( temp < this->lo || temp < n )
-      this->hi++ ;
-    return skuint64(this->hi,temp);
-}
-skuint64 skuint64::operator-(const unsigned long n)
-{
-    unsigned int temp = this->lo - n ;
-    if ( temp >= this->lo || temp >= n )
-      this->hi-- ;
-    return skuint64(this->hi,temp);
-}
-bool skuint64::operator==(const skuint64 n )
-{
-  if ( this -> hi == n . hi && this -> lo == n . lo )
-    return true ;
-  else
-    return false ;
-}
-void skuint64::print()
-{
-  Serial.print(hi) ;
-  Serial.print(" * 4294967296 + ");
-  Serial.println(lo);
-  return ;
-}
-
 int STEPMOT = 20 ;
 int irPin1 = 2 ;
 int irPin2 = 3 ;
+int irPin3 = 4 ;
 volatile byte state = FORWARD ;
 volatile unsigned int stepMot = 0 ;
 volatile int motStop = 1 ;
-skuint64 dispCount ; //init to 0
+unsigned long dispCount = 0L ; //init to 0
 volatile byte limitsw1 = 1 ;
 volatile byte limitsw2 = 1 ;
 byte sRPM = 1 ;
@@ -107,8 +38,9 @@ void setup() {
 
 void loop() 
 {
-  //check_irq1();
-  //check_irq2();
+  check_irq3();
+  check_irq1();
+  check_irq2();
   myMotor->step(stepMot, state, DOUBLE);
   dispCount = dispCount + ( ( state == BACKWARD ) ? -stepMot : stepMot ) ; 
   if ( stepMot > 0 )
