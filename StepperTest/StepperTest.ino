@@ -38,13 +38,12 @@ void setup() {
 
 void loop() 
 {
-  check_irq3();
   check_irq1();
   check_irq2();
   myMotor->step(stepMot, state, DOUBLE);
   dispCount = dispCount + ( ( state == BACKWARD ) ? -stepMot : stepMot ) ; 
   if ( stepMot > 0 )
-  dispCount.print();
+Serial.println(dispCount);
   check_serial();
 }
 
@@ -105,7 +104,7 @@ void check_serial() //check serial for input
       {
         stepMot = STEPMOT ;
         Serial.println(F("Going home...")) ;
-        dispCount.print();
+        Serial.println(dispCount);
         while (!(dispCount==0)){
           myMotor -> step(stepMot, state, DOUBLE) ;
           --dispCount ;

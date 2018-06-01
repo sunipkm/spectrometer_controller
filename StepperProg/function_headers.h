@@ -39,24 +39,31 @@ volatile byte limitsw2 = 1 ;
 volatile byte limitsw3 = 1 ;
 volatile byte sRPM = 1 ;
 volatile int hitOnce = 1 ;
-volatile unsigned long dest = 0L ; //destionation
+volatile long dest = 0L ; //destionation
 
 /***************************************/
 
 /* Function Headers */
-void ask_calibration() ;
+void ask_calibration(bool) ;
 unsigned long eeprom_readlong(unsigned int addr ) ;
 void eeprom_writelong(unsigned int addr , unsigned long n ) ;
 void eepmem_clear() ;
 bool eepmem_begin() ;
 void eepmem_setup() ;
 void eepmem_store() ;
+void check_serial() ;
+void check_irq1  () ;
+void check_irq2  () ;
+void check_irq3  () ;
+void chdir       () ;
 
 /***************************************/
 
 
 /* Function Declarations */
-#include <sk_eeprom.h>
-#include <calibration.h>
+#include "sk_eeprom.h"
+#include "calibration.h"
+#include "irqs.h"
+#include "interaction.h"
 
 /***************************************/
