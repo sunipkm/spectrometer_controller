@@ -15,6 +15,8 @@ void check_irq1() //limitswitch 1
     dispCount = 0 ; //recalibrate yourself at this opportunity
     dest = -1 ;
   }
+  else 
+    return ;
 }
 
 
@@ -30,6 +32,8 @@ void check_irq2() //limitswitch 2
     dispCount = MAX_DISP_BOUND ;
     dest = -1 ;
   }
+  else
+    return ;
 }
 
 void check_irq3() //limitswitch 2
@@ -44,5 +48,7 @@ void check_irq3() //limitswitch 2
     Serial.println(dispCount);
     dest = -1 ;
   }
+  else
+    return ;
 }
 

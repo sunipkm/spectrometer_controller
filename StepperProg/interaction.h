@@ -11,11 +11,11 @@ void check_serial() //check serial for input
     if ( (!limitsw1)||(!limitsw2))
       Serial.println(F("Options: (h)ome, (s)et destination"));
       
-      Serial.println(F("Options: (h)ome, (d)irection, (s)et destination, (p)reset motor speed, (c)alibration, (q)uit\n"));
-    if ( state == FORWARD )
-        Serial.println(F("Currently moving towards LS 2"));
-    if (state == BACKWARD )
-        Serial.println(F("Currently moving towards LS 1"));
+      Serial.println(F("Options: (h)ome, (s)et destination, (p)reset motor speed, (c)alibration, (q)uit\n"));
+//    if ( state == FORWARD )
+//        Serial.println(F("Currently moving towards LS 2"));
+//    if (state == BACKWARD )
+//        Serial.println(F("Currently moving towards LS 1"));
       hitOnce = 0 ;
     }
     
@@ -44,19 +44,22 @@ void check_serial() //check serial for input
         hitOnce = 1 ;
       }
       break ;
-      case 'h' : //go home //needs to be modified severely
+      case 'h' : //go home
       {
         stepMot = STEPMOT ;
         Serial.println(F("Going home...")) ;
+        Serial.print(F("Current location: ")) ;
         Serial.println(dispCount);
 
         if ( dispCount > 201920 )
         {
           state = BACKWARD ;
+          Serial.println(F("Moving towards Limit Switch 1")) ;
         }
         if ( dispCount < 201920 )
         {
           state = FORWARD ;
+          Serial.println(F("Moving towards Limit Switch 2")) ;
         }
         dest = 201920 ; //middle
         stepMot = 1 ;
@@ -69,18 +72,18 @@ void check_serial() //check serial for input
         limitsw3 = 1 ;
       }
       break ;
-      case 'd': //change direction 
-      {
-        //Serial.println("Changing state...");
-        Serial.print(F("Initial state: ")) ;
-        Serial.println(state);
-        chdir() ;
-        Serial.print(F("Final state: ")) ;
-        Serial.println(state);
-        Serial.flush();
-        hitOnce = 1 ;
-      }
-      break ;
+//      case 'd': //change direction 
+//      {
+//        //Serial.println("Changing state...");
+//        Serial.print(F("Initial state: ")) ;
+//        Serial.println(state);
+//        chdir() ;
+//        Serial.print(F("Final state: ")) ;
+//        Serial.println(state);
+//        Serial.flush();
+//        hitOnce = 1 ;
+//      }
+//      break ;
       case 's': //set destination
       {
         Serial.println(F("Provide Destination (6 Digits): "));
@@ -99,6 +102,10 @@ void check_serial() //check serial for input
           motStop = 0 ;
         }
         state = dest < dispCount ? BACKWARD : FORWARD ;
+        if ( state == FORWARD )
+          Serial.println(F("Moving towards Limit Switch 2")) ;
+        if ( state == BACKWARD )
+          Serial.println(F("Moving towards Limit Switch 1")) ;
         limitsw1 = 1 ;
         limitsw2 = 1 ;
         limitsw3 = 1 ;
@@ -106,7 +113,7 @@ void check_serial() //check serial for input
         hitOnce = 1 ;
       }
       break ;
-      case 'p': //set coordinates
+      case 'p': //set speed (almost ineffective :3 )
       {
         Serial.flush();
         Serial.println(F("Set RPM (3 digits): "));
@@ -130,7 +137,9 @@ void check_serial() //check serial for input
         Serial.println(F("Quitting...")) ;
         saved_loc = dispCount ;
         eepmem_store() ;
+        Serial.println(F("Updated current location in EEPROM.")) ;
         myMotor->release() ;
+        Serial.println(F("Released motor.")) ;
         Serial.println(F("It is now safe to unplug the Arduino.")) ;
       }
       break ;
