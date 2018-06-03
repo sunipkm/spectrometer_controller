@@ -56,6 +56,7 @@ void check_irq1  () ;
 void check_irq2  () ;
 void check_irq3  () ;
 void chdir       () ;
+unsigned long readInt(byte n) ; //number of digits to read
 
 /***************************************/
 
