@@ -1,6 +1,7 @@
 void check_serial() //check serial for input
 {
-  Serial.flush() ;
+  while ( Serial.available() > 0 ) 
+    Serial.read() ;
   if ( motStop ) //only when motor is stopped
   {
     if ( hitOnce ){
@@ -10,7 +11,7 @@ void check_serial() //check serial for input
       Serial.println() ;
     if ( (!limitsw1)||(!limitsw2))
       Serial.println(F("Options: (h)ome, (s)et destination"));
-      
+    else  
       Serial.println(F("Options: (h)ome, (s)et destination, (p)reset motor speed, (c)alibration, (q)uit\n"));
 //    if ( state == FORWARD )
 //        Serial.println(F("Currently moving towards LS 2"));
