@@ -14,11 +14,12 @@ void setup()
   Serial.println("Press any key to continue...") ;
   Serial.flush() ;
   while ( Serial.available() < 1 ) ;
-  
+  Serial.read() ;
   eepmem_setup() ;
 
   Serial.flush() ;
-  
+  while ( Serial.available() > 0 )
+    Serial.read() ;
   Serial.println("Setup complete.");
 }
 
