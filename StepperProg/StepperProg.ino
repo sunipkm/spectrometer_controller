@@ -25,7 +25,7 @@ void setup()
 
 void loop()
 {
-  check_irq1() ; check_irq2() ; check_irq3() ;
+  check_irq1() ; check_irq2() ; check_irq3() ; check_irq4() ;
   //Serial.println(dest);
   //Serial.println(dispCount);
   if ( dest != dispCount && stepMot != 0 )

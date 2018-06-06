@@ -9,9 +9,6 @@ void check_serial() //check serial for input
       Serial.print("Current location: ") ;
       Serial.println(dispCount);
       Serial.println() ;
-    if ( (!limitsw1)||(!limitsw2))
-      Serial.println(F("Options: (h)ome, (s)et destination"));
-    else  
       Serial.println(F("Options: (h)ome, (s)et destination, (p)reset motor speed, (c)alibration, (q)uit\n"));
 //    if ( state == FORWARD )
 //        Serial.println(F("Currently moving towards LS 2"));
@@ -164,6 +161,7 @@ unsigned long readInt(byte n)
   Serial.flush() ;
   byte test = 0 ;
   do {
+    input = "" ;
     test = 0 ;
     byte k = n ;
     while ( k-- )
