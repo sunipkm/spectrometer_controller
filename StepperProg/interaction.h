@@ -88,9 +88,9 @@ void check_serial() //check serial for input
         dest = readInt(6) ;
         Serial.print(F("You have chosen: "));
         Serial.println(dest) ;
-        if ( dest < 100 || dest > MAX_DISP_BOUND-100 )
+        if ( dest < 2000 || dest > MAX_DISP_BOUND-6000 )
         {
-          Serial.println(F("Too close to either limits. Please enter new destinations. You can not go more than 100 steps closer to the limits."));
+          Serial.println(F("Too close to either limits. Please enter new destinations. You can not go more than 2000 steps closer to the limits."));
           stepMot = 0 ;
           motStop = 1 ;
         }
