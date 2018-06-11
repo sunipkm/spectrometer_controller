@@ -16,9 +16,9 @@ void check_irq1() //limitswitch 1
     dest = -1 ;
     unsigned long pos = 1000 ;
     do {
-      Serial.println(F("Enter number of steps away from Limit Switch 1 (must be between 100 and 10000 (6 digits): ")) ;
+      Serial.println(F("Enter number of steps away from Limit Switch 1 (must be between 1000 and 10000 (6 digits): ")) ;
       pos = readInt(6) ;
-    } while ( pos < 100 || pos > 10000 ) ;
+    } while ( pos < 1000 || pos > 10000 ) ;
     myMotor -> step ( pos , state , DOUBLE ) ;
   }
   else 
@@ -39,9 +39,9 @@ void check_irq2() //limitswitch 2
     dest = -1 ;
     unsigned long pos = 1000 ;
     do {
-      Serial.println(F("Enter number of steps away from Limit Switch 2 (must be between 100 and 10000 (6 digits): ")) ;
+      Serial.println(F("Enter number of steps away from Limit Switch 2 (must be between 1000 and 10000 (6 digits): ")) ;
       pos = readInt(6) ;
-    } while ( pos < 100 || pos > 10000 ) ;
+    } while ( pos < 1000 || pos > 10000 ) ;
     myMotor -> step ( pos , state , DOUBLE ) ;
   }
   else
