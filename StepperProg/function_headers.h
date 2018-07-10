@@ -40,6 +40,8 @@ volatile byte limitsw3 = 1 ;
 volatile byte sRPM = 1 ;
 volatile int hitOnce = 1 ;
 volatile long dest = 0L ; //destionation
+volatile byte ifDelay = 0 ;
+volatile unsigned int delayVal = 0 ;
 
 /***************************************/
 

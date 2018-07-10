@@ -40,6 +40,8 @@ void loop()
   {
     stepMot = 0 ; motStop = 1 ; Serial.print("Arrived at ") ; Serial.println(dispCount) ;
   }
+  if ( ifDelay )
+    delay ( delayVal ) ;
   check_serial() ;
 }
 

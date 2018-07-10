@@ -70,8 +70,8 @@ void check_serial() //check serial for input
         limitsw3 = 1 ;
       }
       break ;
-//      case 'd': //change direction 
-//      {
+      case 'd': //insert delay 
+      {
 //        //Serial.println("Changing state...");
 //        Serial.print(F("Initial state: ")) ;
 //        Serial.println(state);
@@ -79,9 +79,32 @@ void check_serial() //check serial for input
 //        Serial.print(F("Final state: ")) ;
 //        Serial.println(state);
 //        Serial.flush();
-//        hitOnce = 1 ;
-//      }
-//      break ;
+        Serial.println(F("Enter y to set delay, n to turn off delay.")) ;
+        while ( Serial.available() < 1 ) ;
+        char inCh1 = Serial.read() ;
+        switch ( inCh1 ) {
+          default:
+            break ;
+          case 'y' :
+          {
+            ifDelay = 1 ;
+            do {
+            Serial.println(F("The delay is in integer (ms) < 2000 ms, in 4 digits.")) ;
+            delayVal = readInt(4) ;
+            } while ( delayVal > 2000 ) ; 
+          }
+
+            break ;
+          case 'n' :
+          {
+            ifDelay = 0 ;
+          }
+
+            break ;
+        }
+        hitOnce = 1 ;
+      }
+      break ;
       case 's': //set destination
       {
         Serial.println(F("Provide Destination (6 Digits): "));
