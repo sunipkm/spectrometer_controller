@@ -9,7 +9,7 @@ void check_serial() //check serial for input
       Serial.print("Current location: ") ;
       Serial.println(dispCount);
       Serial.println() ;
-      Serial.println(F("Options: (h)ome, (s)et destination, (p)reset motor speed, (c)alibration, (q)uit\n"));
+      Serial.println(F("Options: (h)ome, (s)et destination, (p)reset motor speed, (c)alibration, (d)elay, (q)uit\n"));
 //    if ( state == FORWARD )
 //        Serial.println(F("Currently moving towards LS 2"));
 //    if (state == BACKWARD )
