@@ -1,5 +1,5 @@
 lpt = ['Dummy',	"System up!",
-	"Press enter key to continue...", #input
+	"Enter y to continue...", #input
 	"Setup complete.",
 	"Arrived at ", #has additional data that will have an underscore. eofStepperProg
 	"Entering calibration mode. Enter 2 to move towards switch 1, enter 1 to move towards switch 2 to obtain location calibration: ", #accepts input

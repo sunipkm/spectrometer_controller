@@ -15,7 +15,9 @@ void setup()
 
   Serial.println(2);//("Press any key to continue...") ;
   Serial.flush() ;
-  while ( Serial.available() < 0 ) ;
+  while ( Serial.available() < 1 ) ;
+  while ( Serial.available() > 0 )
+    Serial.read() ;
   eepmem_setup() ;
 
   Serial.flush() ;
