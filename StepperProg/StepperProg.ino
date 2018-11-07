@@ -2,12 +2,14 @@
 
 void setup()
 {
-  Serial.begin(9600) ;
+  Serial.begin(115200) ;
   Serial.println(1);//("System up!") ;
 
   pinMode(irPin1, INPUT) ; //setting pin irPin1 for limit switch 1
   pinMode(irPin2, INPUT) ;
   pinMode(irPin3, INPUT) ;
+
+  pinMode(A0, INPUT) ; //photoresistor sense pin
 
   AFMS.begin() ;
 
@@ -29,6 +31,18 @@ void loop()
   //Serial.println(dispCount);
   if ( dest != dispCount && stepMot != 0 )
   {
+    //read 50 data points at step
+    byte tcount = 50 ;
+    double res = 0 , res2 = 0;
+    while(tcount--)
+    {
+      double val = analogRead(A0);
+      res += val ;
+      //res2 = res2*res2 ;
+      res2 += val*val ;
+      //res2 = sqrt(res2) ;
+    }
+    Serial.print(40);Serial.print("_");Serial.print(dispCount);Serial.print("_");Serial.print(res/50.);Serial.print("_");Serial.println(res2/50.);
     myMotor -> step (stepMot , state , DOUBLE ) ; //double coil
     if ( state == BACKWARD )
       dispCount -- ;

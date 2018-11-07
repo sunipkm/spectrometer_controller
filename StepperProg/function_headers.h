@@ -9,7 +9,15 @@ Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 // to motor port #2 (M3 and M4)
 Adafruit_StepperMotor *myMotor = AFMS.getStepper(200, 2);
 
+/* Structs */
+typedef union {
+  double d ; byte b[sizeof(double)];
+} double_con ;
 
+typedef union {
+  long d ; byte b[sizeof(long)];
+} long_con ;
+/***********/
 
 /* System Globals */
 

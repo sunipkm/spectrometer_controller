@@ -1,5 +1,5 @@
 lpt = ['Dummy',	"System up!",
-	"Press any key to continue...", #input
+	"Press enter key to continue...", #input
 	"Setup complete.",
 	"Arrived at ", #has additional data that will have an underscore. eofStepperProg
 	"Entering calibration mode. Enter 2 to move towards switch 1, enter 1 to move towards switch 2 to obtain location calibration: ", #accepts input
@@ -41,9 +41,11 @@ import sys
 from time import sleep
 import serial
 if len(sys.argv) < 2:
-	print ("Usage: specRead.py <device name in /dev/>")
+	print ("Usage: specRead.py <device path (eg. /dev/tty.usbmodem****)>")
 	sys.exit(0)
-ser = serial.Serial('/dev/'+sys.argv[1], 9600)
+ser = serial.Serial(sys.argv[1], 115200)
+writingData = False
+ofile = None
 while True:
 	line = ((ser.readline().rstrip()).decode('utf-8')) # Read the newest output from the Arduino
 	words = line.split('_')
@@ -54,7 +56,7 @@ while True:
 		#print(line)
 		#print("Error on received line: ", line)
 		continue
-	if mid not in [0,2,5,12,18,19,20,25,34,36]:
+	if mid not in [0,2,5,12,18,19,20,25,34,36,40]:
 		print(lpt[mid]+" ",end=' ')
 		if len(words)>1:
 			print(words[1:],end=' ')
@@ -82,6 +84,10 @@ while True:
 		ser.write(a)
 
 	if mid == 12 : #Options: (h)ome, (s)et destination, (p)reset motor speed, (c)alibration, (d)elay, (q)uit
+		#if here, must have stopped. Take care of open file handle
+		if writingData:
+			writingData = False
+			ofile.close()
 		while True:
 			a = input(lpt[12])
 			if len(a) != 1 :
@@ -96,7 +102,7 @@ while True:
 			a = input(lpt[18])
 			if len(a) != 1 :
 				continue
-			if a not in ['y','n']:
+			if a not in ['y','n','Y','N']:
 				continue
 			break
 		ser.write(a.encode())
@@ -115,7 +121,18 @@ while True:
 		a = str(a).encode()
 		ser.write(a)
 
-	if mid == 20 : #Provide Destination (6 Digits): 
+	if mid == 20 : #Provide Destination (6 Digits):
+		#ask if reading data
+		while True:
+			a = input("Do you want to record data? Press Y or N.\n")
+			if a in ['y','n','Y','N']:
+				break
+
+		if a == 'y' or a == 'Y' :
+			fname = input("Specify output file name: ")
+			ofile = open(fname,'w+')
+			writingData = True
+
 		while True:
 			a = input(lpt[20])
 			print(a)
@@ -175,3 +192,9 @@ while True:
 		a = format(a,'06d')
 		a = str(a).encode()
 		ser.write(a)
+
+	if mid == 40 : #received data
+		print(words[1:])
+		ofile.write(line+'\n')
+
+
