@@ -2,7 +2,7 @@ lpt = ['Dummy',	"System up!",
 	"Enter y to continue...", #input
 	"Setup complete.",
 	"Arrived at ", #has additional data that will have an underscore. eofStepperProg
-	"Entering calibration mode. Enter 2 to move towards switch 1, enter 1 to move towards switch 2 to obtain location calibration: ", #accepts input
+	"Entering calibration mode. Enter 2 to move towards switch 1, enter 1 to move towards switch 2 to obtain location calibration: \nPress 0 to accept current location. USE WITH CAUTION.\nPress 3 to enter previous known location. USE WITH EXTREME CAUTION.\n", #accepts input
 	"Towards Limit Switch 2: ",
 	"Towards Limit Switch 1: ",
 	"Hit switch 1",
@@ -36,6 +36,7 @@ lpt = ['Dummy',	"System up!",
 	"Enter number of steps away from Limit Switch 2 (must be between 1000 and 10000 (6 digits): ", #input
 	"Hit stop switch on irPin 3", #message
 	"Displacement: ", #data. eof irq.h
+	"Enter location: ", #calib
 ]
 import sys
 from time import sleep
@@ -47,7 +48,10 @@ ser = serial.Serial(sys.argv[1], 115200)
 writingData = False
 ofile = None
 while True:
-	line = ((ser.readline().rstrip()).decode('utf-8')) # Read the newest output from the Arduino
+	try:
+		line = ((ser.readline().rstrip()).decode('utf-8')) # Read the newest output from the Arduino
+	except Exception:
+		continue
 	words = line.split('_')
 	mid = 0
 	try:
@@ -71,12 +75,12 @@ while True:
 	
 	if mid == 5 : #Entering calibration mode. Enter 2 to move towards switch 1, enter 1 to move towards switch 2 to obtain location calibration:
 		while True:
-			a = input(lpt[5])
+			a = input(lpt[5]+"\nLast known position: " +words[1] +"\nEnter response: ")
 			try:
 				a = int(a)
 			except ValueError:
 				continue
-			if a < 1 or a > 2 :
+			if a < 0 or a > 3 :
 				continue
 			else:
 				break
@@ -132,6 +136,12 @@ while True:
 			fname = input("Specify output file name: ")
 			ofile = open(fname,'w+')
 			writingData = True
+			spitD = 'y'
+		else:
+			spitD = 'n'
+		spitD = spitD.encode()
+		print(spitD)
+		ser.write(spitD)
 
 		while True:
 			a = input(lpt[20])
@@ -192,9 +202,27 @@ while True:
 		a = format(a,'06d')
 		a = str(a).encode()
 		ser.write(a)
+	
+	if mid == 39:
+		while True:
+			a = input()
+			try:
+				a = int(a)
+			except ValueError:
+				continue
+
+			if (a > 2000) and (a < (403840 - 6000)) :
+				break
+			else:
+				continue
+
+		a = format(a,'06d')
+		a = str(a).encode()
+		ser.write(a)
 
 	if mid == 40 : #received data
-		print(words[1:])
-		ofile.write(line+'\n')
+		if writingData:
+			print(words[1:])
+			ofile.write(line+'\n')
 
 

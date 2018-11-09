@@ -2,7 +2,8 @@ void ask_calibration(bool needed)
 {
   if ( needed ) {
   calib_begin: Serial.flush() ;
-  Serial.println(5);//(F("Entering calibration mode. Enter 2 to move towards switch 1, enter 1 to move towards switch 2 to obtain location calibration:")) ;
+  Serial.print(5);//(F("Entering calibration mode. Enter 2 to move towards switch 1, enter 1 to move towards switch 2 to obtain location calibration:")) ;
+  Serial.print("_"); Serial.println(saved_loc);
   while(Serial.available()<1) ;
   byte dir = Serial.parseInt() ;
   switch(dir)
@@ -18,6 +19,15 @@ void ask_calibration(bool needed)
       Serial.println(7);//(F("Towards Limit Switch 1: ")) ;
     }
     break ;
+
+    case 0 :
+        goto calib_end ;
+        break ;
+    case 3 :
+        Serial.println(39);
+        while(Serial.available()<1);
+        saved_loc = Serial.parseInt();
+        goto calib_end;
 
     default:
       goto calib_begin ;
@@ -50,9 +60,8 @@ void ask_calibration(bool needed)
   else
     goto calib_begin ;
   } //end if needed
-  dispCount = saved_loc ; //either after calibration or from memory, dispCout = saved_loc
+  calib_end: dispCount = saved_loc ; //either after calibration or from memory, dispCout = saved_loc
   Serial.print(10);Serial.print("_");//("In calibration: Current location: ");
   Serial.println(dispCount);
   return ;  
 }
-

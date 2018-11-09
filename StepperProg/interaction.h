@@ -111,6 +111,17 @@ void check_serial() //check serial for input
         //while (Serial.available()>0);
         Serial.println(20);//(F("Provide Destination (6 Digits): "));
         while(Serial.available()<1);
+        char spitDchar = Serial.read();
+        switch(spitDchar){
+          case 'y':
+            spitData = true ;
+          case 'n':
+            spitData = false ;
+          default:
+            spitData = true ;
+        }
+        
+        while(Serial.available()<1);
         dest = Serial.parseInt();//readInt(6) ;
         Serial.print(21);Serial.print("_");//(F("You have chosen: "));
         Serial.println(dest) ;
@@ -212,4 +223,3 @@ unsigned long readInt(byte n)
   //Serial.println() ;
   return input.toInt() ;
 }
-

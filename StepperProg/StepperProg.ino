@@ -1,3 +1,5 @@
+#include <Wire.h>
+
 #include "function_headers.h"
 
 void setup()
@@ -35,16 +37,19 @@ void loop()
   {
     //read 50 data points at step
     byte tcount = 50 ;
-    double res = 0 , res2 = 0;
-    while(tcount--)
+    long res = 0 , res2 = 0;
+    if(spitData)
     {
-      double val = analogRead(A0);
+      while(tcount--){
+      delayMicroseconds(1);
+      unsigned int val = analogRead(A0);
       res += val ;
       //res2 = res2*res2 ;
-      res2 += val*val ;
+      res2 += val*val ;}
       //res2 = sqrt(res2) ;
-    }
+    
     Serial.print(40);Serial.print("_");Serial.print(dispCount);Serial.print("_");Serial.print(res/50.);Serial.print("_");Serial.println(res2/50.);
+    }
     myMotor -> step (stepMot , state , DOUBLE ) ; //double coil
     if ( state == BACKWARD )
       dispCount -- ;
@@ -61,4 +66,3 @@ void loop()
     delay ( delayVal ) ;
   check_serial() ;
 }
-

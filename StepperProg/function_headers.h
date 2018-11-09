@@ -50,6 +50,7 @@ volatile int hitOnce = 1 ;
 volatile long dest = 0L ; //destionation
 volatile byte ifDelay = 0 ;
 volatile unsigned int delayVal = 0 ;
+volatile bool spitData = false ;
 
 /***************************************/
 

@@ -68,16 +68,16 @@ void eepmem_setup()
     bootstat = EEPROM.read( __mem_m1 + 1 ) ; //read powerdown status
     EEPROM.write(__mem_m1+1,0) ; //clear
     //Serial.println(EEPROM.read( __mem_m1 + 1 ));
+    saved_loc = eeprom_readlong(__mem_m1 + 2) ; //read 4 bytes in little endian byte order
     if ( bootstat == POWEROFF_SUCCESS ){ //successfully stored current location, so we need to retrieve it.
-      saved_loc = eeprom_readlong(__mem_m1 + 2) ; //read 4 bytes in little endian byte order
       status = true ;
     }
     else
     {
-      saved_loc = MAX_DISP_BOUND + 10 ; //location is further than maximum boundary, not allowed to store that in current location 
+      //saved_loc = MAX_DISP_BOUND + 10 ; //location is further than maximum boundary, not allowed to store that in current location 
       status = false ;
     }
-    EEPROM.write(__mem_m1+2 , 0 ) ; //clear the status
+    //EEPROM.write(__mem_m1+2 , 0 ) ; //clear the status
     
   }
   ask_calibration(!(status)) ;
