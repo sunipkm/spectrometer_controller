@@ -44,6 +44,21 @@ import serial
 if len(sys.argv) < 2:
 	print ("Usage: specRead.py <device path (eg. /dev/tty.usbmodem****)>")
 	sys.exit(0)
+
+### Set up wavelength calibration
+while True:
+	a = input("Enter y to accept current calibration or n to enter stepping mode: ")
+	if a not in ['y','Y','n','N']:
+		continue
+	else :
+		break
+	
+	if a in ['y','Y']:
+		calibSet = True
+		slope = 0.00801741
+		intercept = -97.0382
+### End wavelength calibration
+
 ser = serial.Serial(sys.argv[1], 115200)
 writingData = False
 ofile = None
@@ -144,12 +159,18 @@ while True:
 		ser.write(spitD)
 
 		while True:
-			a = input(lpt[20])
-			print(a)
+			if (calibSet) :
+				a = input(lpt[20])
+				print(a)
+			else:
+				a = input("Enter wavelength (1st Order) [Integer, in nanometers]: ")
 			try:
 				a = int(a)
 			except ValueError:
 				continue
+
+			if calibSet :
+				a = int((a-intercept)/slope)
 
 			if (a > 2000) and (a < (403840 - 6000)) :
 				break
