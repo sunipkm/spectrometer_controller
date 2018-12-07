@@ -41,7 +41,7 @@ void loop()
     if(spitData)
     {
       while(tcount--){
-      delayMicroseconds(1);
+      delayMicroseconds(50);
       unsigned int val = analogRead(A0);
       res += val ;
       //res2 = res2*res2 ;
