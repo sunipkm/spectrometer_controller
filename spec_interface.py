@@ -50,13 +50,14 @@ while True:
 	a = input("Enter y to accept current calibration or n to enter stepping mode: ")
 	if a not in ['y','Y','n','N']:
 		continue
-	else :
-		break
 	
-	if a in ['y','Y']:
+	elif a in ['y','Y']:
 		calibSet = True
 		slope = 0.00801741
 		intercept = -97.0382
+		break
+	elif a in ['n', 'N']:
+		break
 ### End wavelength calibration
 
 ser = serial.Serial(sys.argv[1], 115200)
@@ -159,17 +160,17 @@ while True:
 		ser.write(spitD)
 
 		while True:
-			if (calibSet) :
+			if not calibSet : # default input
 				a = input(lpt[20])
 				print(a)
-			else:
+			else: # wavelength input
 				a = input("Enter wavelength (1st Order) [Integer, in nanometers]: ")
 			try:
 				a = int(a)
 			except ValueError:
 				continue
 
-			if calibSet :
+			if calibSet : # wavelength to step
 				a = int((a-intercept)/slope)
 
 			if (a > 2000) and (a < (403840 - 6000)) :
